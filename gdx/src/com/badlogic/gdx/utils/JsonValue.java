@@ -1083,8 +1083,8 @@ public class JsonValue implements Iterable<JsonValue> {
 	}
 
 	public class JsonIterator implements Iterator<JsonValue>, Iterable<JsonValue> {
-		JsonValue entry = child;
-		JsonValue current;
+		protected JsonValue entry = child;
+		protected JsonValue current;
 
 		public boolean hasNext () {
 			return entry != null;

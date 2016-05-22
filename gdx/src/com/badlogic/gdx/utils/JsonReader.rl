@@ -339,7 +339,7 @@ public class JsonReader implements BaseJsonReader {
 	private final Array<JsonValue> lastChild = new Array(8);
 	private JsonValue root, current;
 
-	private void addChild (String name, JsonValue child) {
+	protected void addChild (String name, JsonValue child) {
 		child.setName(name);
 		if (current == null) {
 			current = child;
@@ -358,16 +358,36 @@ public class JsonReader implements BaseJsonReader {
 		} else
 			root = current;
 	}
+	
+	protected JsonValue newJsonValue(ValueType valueType) {
+		return new JsonValue(valueType);
+	}
+	
+	protected JsonValue newJsonValue(double value, String stringValue) {
+		return new JsonValue(value, stringValue);
+	}
+	
+	protected JsonValue newJsonValue(long value, String stringValue) {
+		return new JsonValue(value, stringValue);
+	}
+	
+	protected JsonValue newJsonValue(boolean value) {
+		return new JsonValue(value);
+	}
+	
+	protected JsonValue newJsonValue(String value) {
+		return new JsonValue(value);
+	}
 
 	protected void startObject (String name) {
-		JsonValue value = new JsonValue(ValueType.object);
+		JsonValue value = newJsonValue(ValueType.object);
 		if (current != null) addChild(name, value);
 		elements.add(value);
 		current = value;
 	}
 
 	protected void startArray (String name) {
-		JsonValue value = new JsonValue(ValueType.array);
+		JsonValue value = newJsonValue(ValueType.array);
 		if (current != null) addChild(name, value);
 		elements.add(value);
 		current = value;
@@ -380,19 +400,19 @@ public class JsonReader implements BaseJsonReader {
 	}
 
 	protected void string (String name, String value) {
-		addChild(name, new JsonValue(value));
+		addChild(name, newJsonValue(value));
 	}
 
 	protected void number (String name, double value, String stringValue) {
-		addChild(name, new JsonValue(value, stringValue));
+		addChild(name, newJsonValue(value, stringValue));
 	}
 
 	protected void number (String name, long value, String stringValue) {
-		addChild(name, new JsonValue(value, stringValue));
+		addChild(name, newJsonValue(value, stringValue));
 	}
 
 	protected void bool (String name, boolean value) {
-		addChild(name, new JsonValue(value));
+		addChild(name, newJsonValue(value));
 	}
 
 	private String unescape (String value) {
