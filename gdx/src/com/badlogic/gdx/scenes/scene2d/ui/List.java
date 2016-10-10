@@ -47,6 +47,7 @@ public class List<T> extends Widget implements Cullable {
 	private float prefWidth, prefHeight;
 	private float itemHeight;
 	private float textOffsetX, textOffsetY;
+	private int itemAlign;
 
 	public List (Skin skin) {
 		this(skin.get(ListStyle.class));
@@ -90,6 +91,16 @@ public class List<T> extends Widget implements Cullable {
 		if (style == null) throw new IllegalArgumentException("style cannot be null.");
 		this.style = style;
 		invalidateHierarchy();
+	}
+
+	public int getItemAlign()
+	{
+		return itemAlign;
+	}
+
+	public void setItemAlign(int itemAlign)
+	{
+		this.itemAlign = itemAlign;
 	}
 
 	/** Returns the list's style. Modifying the returned style may not have an effect until {@link #setStyle(ListStyle)} is called. */
@@ -158,7 +169,7 @@ public class List<T> extends Widget implements Cullable {
 					selectedDrawable.draw(batch, x, y + itemY - itemHeight, width, itemHeight);
 					font.setColor(fontColorSelected.r, fontColorSelected.g, fontColorSelected.b, fontColorSelected.a * parentAlpha);
 				}
-				font.draw(batch, toString(item), x + textOffsetX, y + itemY - textOffsetY);
+				font.draw(batch, toString(item), x + textOffsetX, y + itemY - textOffsetY, width, itemAlign, true);
 				if (selected) {
 					font.setColor(fontColorUnselected.r, fontColorUnselected.g, fontColorUnselected.b, fontColorUnselected.a
 						* parentAlpha);

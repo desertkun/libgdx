@@ -65,6 +65,7 @@ public class SelectBox<T> extends Widget implements Disableable {
 	private float prefWidth, prefHeight;
 	private ClickListener clickListener;
 	boolean disabled;
+	int selectionAlign = Align.left;
 	private GlyphLayout layout = new GlyphLayout();
 
 	public SelectBox (Skin skin) {
@@ -240,9 +241,19 @@ public class SelectBox<T> extends Widget implements Disableable {
 				y += (int)(height / 2 + font.getData().capHeight / 2);
 			}
 			font.setColor(fontColor.r, fontColor.g, fontColor.b, fontColor.a * parentAlpha);
-			layout.setText(font, string, 0, string.length(), font.getColor(), width, Align.left, false, "...");
+			layout.setText(font, string, 0, string.length(), font.getColor(), width, selectionAlign, false, "...");
 			font.draw(batch, layout, x, y);
 		}
+	}
+
+	public int getSelectionAlign()
+	{
+		return selectionAlign;
+	}
+
+	public void setSelectionAlign(int selectionAlign)
+	{
+		this.selectionAlign = selectionAlign;
 	}
 
 	/** Get the set of selected items, useful when multiple items are selected
