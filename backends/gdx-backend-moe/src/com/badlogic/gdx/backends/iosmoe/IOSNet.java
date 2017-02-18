@@ -24,8 +24,8 @@ import com.badlogic.gdx.net.ServerSocket;
 import com.badlogic.gdx.net.ServerSocketHints;
 import com.badlogic.gdx.net.Socket;
 import com.badlogic.gdx.net.SocketHints;
-import ios.foundation.NSURL;
-import ios.uikit.UIApplication;
+import apple.foundation.NSURL;
+import apple.uikit.UIApplication;
 
 public class IOSNet implements Net {
 
@@ -63,6 +63,10 @@ public class IOSNet implements Net {
 
 	@Override
 	public boolean openURI (String URI) {
-		return uiApp.openURL(NSURL.fileURLWithPath(URI));
+		if (uiApp.canOpenURL(NSURL.URLWithString(URI))) {
+			uiApp.openURL(NSURL.URLWithString(URI));
+			return true;
+		}
+		return false;
 	}
 }
