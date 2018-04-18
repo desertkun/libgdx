@@ -22,13 +22,13 @@ import java.util.HashMap;
 public class DependencyBank {
 
 	//Versions
-	static String libgdxVersion = "1.9.9";
+	static String libgdxVersion = "1.9.9-dev";
 	//Temporary snapshot version, we need a more dynamic solution for pointing to the latest nightly
-	static String libgdxNightlyVersion = "1.9.9-dev";
-	static String roboVMVersion = "2.3.1";
+	static String libgdxNightlyVersion = "1.9.9-SNAPSHOT";
+	static String roboVMVersion = "2.3.3";
 	static String moeVersion = "1.4.0";
-	static String buildToolsVersion = "23.0.1";
-	static String androidAPILevel = "20";
+	static String buildToolsVersion = "25.0.3";
+	static String androidAPILevel = "25";
 	static String gwtVersion = "2.8.0";
 
 	//Repositories
@@ -81,33 +81,33 @@ public class DependencyBank {
 	 */
 	public enum ProjectDependency {
 		GDX(
-			new String[]{"com.github.desertkun.libgdx:gdx:$gdxVersion"},
-			new String[]{"com.github.desertkun.libgdx:gdx-backend-lwjgl:$gdxVersion", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-desktop"},
-			new String[]{"com.github.desertkun.libgdx:gdx-backend-android:$gdxVersion", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-armeabi", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-armeabi-v7a", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-arm64-v8a", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-x86", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-x86_64"},
-			new String[]{"com.mobidevelop.robovm:robovm-rt:$roboVMVersion", "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion", "com.github.desertkun.libgdx:gdx-backend-robovm:$gdxVersion", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-ios"},
-			new String[]{"com.github.desertkun.libgdx:gdx-backend-moe:$gdxVersion", "com.github.desertkun.libgdx:gdx-platform:$gdxVersion:natives-ios"},
-			new String[]{"com.github.desertkun.libgdx:gdx-backend-gwt:$gdxVersion", "com.github.desertkun.libgdx:gdx:$gdxVersion:sources", "com.github.desertkun.libgdx:gdx-backend-gwt:$gdxVersion:sources"},
+			new String[]{"com.badlogicgames.gdx:gdx:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"},
+			new String[]{"com.badlogicgames.gdx:gdx-backend-android:$gdxVersion", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"},
+			new String[]{"com.mobidevelop.robovm:robovm-rt:$roboVMVersion", "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion", "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-backend-moe:$gdxVersion", "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion", "com.badlogicgames.gdx:gdx:$gdxVersion:sources", "com.badlogicgames.gdx:gdx-backend-gwt:$gdxVersion:sources"},
 			new String[]{"com.badlogic.gdx.backends.gdx_backends_gwt"},
 			
 			"Core Library for LibGDX"
 		),
 		BULLET(
-			new String[]{"com.github.desertkun.libgdx:gdx-bullet:$gdxVersion"},
-			new String[]{"com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-desktop"},
-			new String[]{"com.github.desertkun.libgdx:gdx-bullet:$gdxVersion", "com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-armeabi", "com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-armeabi-v7a", "com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-arm64-v8a", "com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-x86", "com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-x86_64"},
-			new String[]{"com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-ios"},
-			new String[]{"com.github.desertkun.libgdx:gdx-bullet-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-bullet:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-desktop"},
+			new String[]{"com.badlogicgames.gdx:gdx-bullet:$gdxVersion", "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-armeabi", "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-armeabi-v7a", "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-arm64-v8a", "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-x86", "com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-x86_64"},
+			new String[]{"com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-bullet-platform:$gdxVersion:natives-ios"},
 			null,
 			null,
 			
 			"3D Collision Detection and Rigid Body Dynamics"
 		),
 		FREETYPE(
-			new String[]{"com.github.desertkun.libgdx:gdx-freetype:$gdxVersion"},
-			new String[]{"com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-desktop"},
-			new String[]{"com.github.desertkun.libgdx:gdx-freetype:$gdxVersion", "com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-armeabi", "com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a", "com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a", "com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-x86", "com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"},
-			new String[]{"com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-ios"},
-			new String[]{"com.github.desertkun.libgdx:gdx-freetype-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-freetype:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"},
+			new String[]{"com.badlogicgames.gdx:gdx-freetype:$gdxVersion", "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi", "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a", "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a", "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86", "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"},
+			new String[]{"com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-ios"},
 			null,
 			null,
 			
@@ -115,7 +115,7 @@ public class DependencyBank {
 		),
 		TOOLS(
 			new String[]{},
-			new String[]{"com.github.desertkun.libgdx:gdx-tools:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-tools:$gdxVersion"},
 			new String[]{},
 			new String[]{},
 			new String[]{},
@@ -125,23 +125,23 @@ public class DependencyBank {
 			"Collection of tools, including 2D/3D particle editors, texture packers, and file processors"
 		),
 		CONTROLLERS(
-			new String[]{"com.github.desertkun.libgdx:gdx-controllers:$gdxVersion"},
-			new String[]{"com.github.desertkun.libgdx:gdx-controllers-desktop:$gdxVersion", "com.github.desertkun.libgdx:gdx-controllers-platform:$gdxVersion:natives-desktop"},
-			new String[]{"com.github.desertkun.libgdx:gdx-controllers:$gdxVersion", "com.github.desertkun.libgdx:gdx-controllers-android:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-controllers:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-controllers-desktop:$gdxVersion", "com.badlogicgames.gdx:gdx-controllers-platform:$gdxVersion:natives-desktop"},
+			new String[]{"com.badlogicgames.gdx:gdx-controllers:$gdxVersion", "com.badlogicgames.gdx:gdx-controllers-android:$gdxVersion"},
 			new String[]{}, // works on iOS but never reports any controllers :)
 			new String[]{}, // works on iOS but never reports any controllers :)
-			new String[]{"com.github.desertkun.libgdx:gdx-controllers:$gdxVersion:sources", "com.github.desertkun.libgdx:gdx-controllers-gwt:$gdxVersion", "com.github.desertkun.libgdx:gdx-controllers-gwt:$gdxVersion:sources"},
+			new String[]{"com.badlogicgames.gdx:gdx-controllers:$gdxVersion:sources", "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion", "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion:sources"},
 			new String[]{"com.badlogic.gdx.controllers.controllers-gwt"},
 
 			"Controller/Gamepad API"
 		),
 		BOX2D(
-			new String[]{"com.github.desertkun.libgdx:gdx-box2d:$gdxVersion"},
-			new String[]{"com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-desktop"},
-			new String[]{"com.github.desertkun.libgdx:gdx-box2d:$gdxVersion", "com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-armeabi", "com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a", "com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a", "com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-x86", "com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"},
-			new String[]{"com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-ios"},
-			new String[]{"com.github.desertkun.libgdx:gdx-box2d-platform:$gdxVersion:natives-ios"},
-			new String[]{"com.github.desertkun.libgdx:gdx-box2d:$gdxVersion:sources", "com.github.desertkun.libgdx:gdx-box2d-gwt:$gdxVersion:sources"},
+			new String[]{"com.badlogicgames.gdx:gdx-box2d:$gdxVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-desktop"},
+			new String[]{"com.badlogicgames.gdx:gdx-box2d:$gdxVersion", "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi", "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-armeabi-v7a", "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-arm64-v8a", "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86", "com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-x86_64"},
+			new String[]{"com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-box2d-platform:$gdxVersion:natives-ios"},
+			new String[]{"com.badlogicgames.gdx:gdx-box2d:$gdxVersion:sources", "com.badlogicgames.gdx:gdx-box2d-gwt:$gdxVersion:sources"},
 			new String[]{"com.badlogic.gdx.physics.box2d.box2d-gwt"},
 			
 			"2D Physics Library"
@@ -169,12 +169,12 @@ public class DependencyBank {
 			"Lightweight Entity framework"
 		),
 		AI(
-			new String[]{"com.github.desertkun.libgdx:gdx-ai:$aiVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-ai:$aiVersion"},
 			new String[]{},
-			new String[]{"com.github.desertkun.libgdx:gdx-ai:$aiVersion"},
+			new String[]{"com.badlogicgames.gdx:gdx-ai:$aiVersion"},
 			new String[]{},
 			new String[]{},
-			new String[]{"com.github.desertkun.libgdx:gdx-ai:$aiVersion:sources"},
+			new String[]{"com.badlogicgames.gdx:gdx-ai:$aiVersion:sources"},
 			new String[]{"com.badlogic.gdx.ai"},
 			
 			"Artificial Intelligence framework"
