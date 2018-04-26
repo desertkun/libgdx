@@ -10,7 +10,7 @@
   <groupId>com.github.desertkun.libgdx</groupId>
   <artifactId>gdx-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.9.9</version>
+  <version>1.9.10</version>
 
   <name>libGDX Parent</name>
   <description>Android/Desktop/iOS/HTML5 game development framework.</description>

@@ -51,7 +51,7 @@ public class DragAndDrop {
 	public void addSource (final Source source) {
 		DragListener listener = new DragListener() {
 			public void dragStart (InputEvent event, float x, float y, int pointer) {
-				if (activePointer != -1) {
+				if (activePointer != -1 || source.getActor() == null || source.getActor().getStage() == null) {
 					event.stop();
 					return;
 				}
