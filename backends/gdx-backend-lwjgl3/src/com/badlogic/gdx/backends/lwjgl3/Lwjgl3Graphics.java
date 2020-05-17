@@ -19,25 +19,25 @@ package com.badlogic.gdx.backends.lwjgl3;
 import java.nio.IntBuffer;
 
 import com.badlogic.gdx.Application;
-import com.badlogic.gdx.graphics.glutils.GLVersion;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 
 import com.badlogic.gdx.Graphics;
-import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration.HdpiMode;
 import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.Cursor.SystemCursor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.GL30;
+import com.badlogic.gdx.graphics.glutils.GLVersion;
+import com.badlogic.gdx.graphics.glutils.HdpiMode;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.utils.Disposable;
 import org.lwjgl.opengl.GL11;
 
 public class Lwjgl3Graphics implements Graphics, Disposable {
-	private final Lwjgl3Window window;
-	private GL20 gl20;
+	final Lwjgl3Window window;
+	GL20 gl20;
 	private GL30 gl30;
 	private GLVersion glVersion;
 	private volatile int backBufferWidth;
@@ -99,7 +99,7 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 		return window;
 	}
 
-	private void updateFramebufferInfo() {
+	void updateFramebufferInfo() {
 		GLFW.glfwGetFramebufferSize(window.getWindowHandle(), tmpBuffer, tmpBuffer2);
 		this.backBufferWidth = tmpBuffer.get(0);
 		this.backBufferHeight = tmpBuffer2.get(0);
@@ -320,6 +320,26 @@ public class Lwjgl3Graphics implements Graphics, Disposable {
 	@Override
 	public DisplayMode getDisplayMode(Monitor monitor) {
 		return Lwjgl3ApplicationConfiguration.getDisplayMode(monitor);
+	}
+
+	@Override
+	public int getSafeInsetLeft() {
+		return 0;
+	}
+
+	@Override
+	public int getSafeInsetTop() {
+		return 0;
+	}
+
+	@Override
+	public int getSafeInsetBottom() {
+		return 0;
+	}
+
+	@Override
+	public int getSafeInsetRight() {
+		return 0;
 	}
 
 	@Override

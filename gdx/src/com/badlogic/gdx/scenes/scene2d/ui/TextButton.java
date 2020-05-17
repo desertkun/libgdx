@@ -22,24 +22,25 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Null;
 
 /** A button with a child {@link Label} to display text.
  * @author Nathan Sweet */
 public class TextButton extends Button {
-	private final Label label;
+	private Label label;
 	private TextButtonStyle style;
 
-	public TextButton (String text, Skin skin) {
+	public TextButton (@Null String text, Skin skin) {
 		this(text, skin.get(TextButtonStyle.class));
 		setSkin(skin);
 	}
 
-	public TextButton (String text, Skin skin, String styleName) {
+	public TextButton (@Null String text, Skin skin, String styleName) {
 		this(text, skin.get(styleName, TextButtonStyle.class));
 		setSkin(skin);
 	}
 
-	public TextButton (String text, TextButtonStyle style) {
+	public TextButton (@Null String text, TextButtonStyle style) {
 		super();
 		setStyle(style);
 		this.style = style;
@@ -67,7 +68,7 @@ public class TextButton extends Button {
 		return style;
 	}
 
-	public void draw (Batch batch, float a) {
+	public void draw (Batch batch, float parentAlpha) {
 		Color fontColor;
 		if (isDisabled() && style.disabledFontColor != null)
 			fontColor = style.disabledFontColor;
@@ -80,7 +81,12 @@ public class TextButton extends Button {
 		else
 			fontColor = style.fontColor;
 		if (fontColor != null) label.getStyle().fontColor = fontColor;
-		super.draw(batch, a);
+		super.draw(batch, parentAlpha);
+	}
+
+	public void setLabel (Label label) {
+		getLabelCell().setActor(label);
+		this.label = label;
 	}
 
 	public Label getLabel () {
@@ -91,7 +97,7 @@ public class TextButton extends Button {
 		return getCell(label);
 	}
 
-	public void setText (String text) {
+	public void setText (@Null String text) {
 		label.setText(text);
 	}
 
@@ -99,17 +105,26 @@ public class TextButton extends Button {
 		return label.getText();
 	}
 
+	public String toString () {
+		String name = getName();
+		if (name != null) return name;
+		String className = getClass().getName();
+		int dotIndex = className.lastIndexOf('.');
+		if (dotIndex != -1) className = className.substring(dotIndex + 1);
+		return (className.indexOf('$') != -1 ? "TextButton " : "") + className + ": " + label.getText();
+	}
+
 	/** The style for a text button, see {@link TextButton}.
 	 * @author Nathan Sweet */
 	static public class TextButtonStyle extends ButtonStyle {
 		public BitmapFont font;
 		/** Optional. */
-		public Color fontColor, downFontColor, overFontColor, checkedFontColor, checkedOverFontColor, disabledFontColor;
+		@Null public Color fontColor, downFontColor, overFontColor, checkedFontColor, checkedOverFontColor, disabledFontColor;
 
 		public TextButtonStyle () {
 		}
 
-		public TextButtonStyle (Drawable up, Drawable down, Drawable checked, BitmapFont font) {
+		public TextButtonStyle (@Null Drawable up, @Null Drawable down, @Null  Drawable checked, @Null BitmapFont font) {
 			super(up, down, checked);
 			this.font = font;
 		}

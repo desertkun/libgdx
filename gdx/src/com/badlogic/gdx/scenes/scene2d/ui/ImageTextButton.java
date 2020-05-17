@@ -23,6 +23,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label.LabelStyle;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton.TextButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.Scaling;
 
 /** A button with a child {@link Image} and {@link Label}.
@@ -32,20 +33,20 @@ import com.badlogic.gdx.utils.Scaling;
  * @author Nathan Sweet */
 public class ImageTextButton extends Button {
 	private final Image image;
-	private final Label label;
+	private Label label;
 	private ImageTextButtonStyle style;
 
-	public ImageTextButton (String text, Skin skin) {
+	public ImageTextButton (@Null String text, Skin skin) {
 		this(text, skin.get(ImageTextButtonStyle.class));
 		setSkin(skin);
 	}
 
-	public ImageTextButton (String text, Skin skin, String styleName) {
+	public ImageTextButton (@Null String text, Skin skin, String styleName) {
 		this(text, skin.get(styleName, ImageTextButtonStyle.class));
 		setSkin(skin);
 	}
 
-	public ImageTextButton (String text, ImageTextButtonStyle style) {
+	public ImageTextButton (@Null String text, ImageTextButtonStyle style) {
 		super(style);
 		this.style = style;
 
@@ -99,7 +100,7 @@ public class ImageTextButton extends Button {
 		image.setDrawable(drawable);
 	}
 
-	public void draw (Batch batch, float a) {
+	public void draw (Batch batch, float parentAlpha) {
 		updateImage();
 		Color fontColor;
 		if (isDisabled() && style.disabledFontColor != null)
@@ -113,7 +114,7 @@ public class ImageTextButton extends Button {
 		else
 			fontColor = style.fontColor;
 		if (fontColor != null) label.getStyle().fontColor = fontColor;
-		super.draw(batch, a);
+		super.draw(batch, parentAlpha);
 	}
 
 	public Image getImage () {
@@ -122,6 +123,11 @@ public class ImageTextButton extends Button {
 
 	public Cell getImageCell () {
 		return getCell(image);
+	}
+
+	public void setLabel (Label label) {
+		getLabelCell().setActor(label);
+		this.label = label;
 	}
 
 	public Label getLabel () {
@@ -140,16 +146,26 @@ public class ImageTextButton extends Button {
 		return label.getText();
 	}
 
+	public String toString () {
+		String name = getName();
+		if (name != null) return name;
+		String className = getClass().getName();
+		int dotIndex = className.lastIndexOf('.');
+		if (dotIndex != -1) className = className.substring(dotIndex + 1);
+		return (className.indexOf('$') != -1 ? "ImageTextButton " : "") + className + ": " + image.getDrawable() + " "
+			+ label.getText();
+	}
+
 	/** The style for an image text button, see {@link ImageTextButton}.
 	 * @author Nathan Sweet */
 	static public class ImageTextButtonStyle extends TextButtonStyle {
 		/** Optional. */
-		public Drawable imageUp, imageDown, imageOver, imageChecked, imageCheckedOver, imageDisabled;
+		@Null public Drawable imageUp, imageDown, imageOver, imageChecked, imageCheckedOver, imageDisabled;
 
 		public ImageTextButtonStyle () {
 		}
 
-		public ImageTextButtonStyle (Drawable up, Drawable down, Drawable checked, BitmapFont font) {
+		public ImageTextButtonStyle (@Null Drawable up, @Null Drawable down, @Null Drawable checked, BitmapFont font) {
 			super(up, down, checked, font);
 		}
 

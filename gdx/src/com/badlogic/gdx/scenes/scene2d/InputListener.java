@@ -17,6 +17,7 @@
 package com.badlogic.gdx.scenes.scene2d;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.Null;
 
 /** EventListener for low-level input events. Unpacks {@link InputEvent}s and calls the appropriate method. By default the methods
  * here do nothing with the event. Users are expected to override the methods they are interested in, like this:
@@ -33,7 +34,7 @@ import com.badlogic.gdx.math.Vector2;
  * 	}
  * });
  * </pre>
-*/
+ */
 public class InputListener implements EventListener {
 	static private final Vector2 tmpCoords = new Vector2();
 
@@ -75,9 +76,10 @@ public class InputListener implements EventListener {
 		return false;
 	}
 
-	/** Called when a mouse button or a finger touch goes down on the actor. If true is returned, this listener will receive all
-	 * touchDragged and touchUp events, even those not over this actor, until touchUp is received. Also when true is returned, the
-	 * event is {@link Event#handle() handled}.
+	/** Called when a mouse button or a finger touch goes down on the actor. If true is returned, this listener will have
+	 * {@link Stage#addTouchFocus(EventListener, Actor, Actor, int, int) touch focus}, so it will receive all touchDragged and
+	 * touchUp events, even those not over this actor, until touchUp is received. Also when true is returned, the event is
+	 * {@link Event#handle() handled}.
 	 * @see InputEvent */
 	public boolean touchDown (InputEvent event, float x, float y, int pointer, int button) {
 		return false;
@@ -106,14 +108,14 @@ public class InputListener implements EventListener {
 	 * mouse buttons are pressed (pointer will be -1).
 	 * @param fromActor May be null.
 	 * @see InputEvent */
-	public void enter (InputEvent event, float x, float y, int pointer, Actor fromActor) {
+	public void enter (InputEvent event, float x, float y, int pointer, @Null Actor fromActor) {
 	}
 
 	/** Called any time the mouse cursor or a finger touch is moved out of an actor. On the desktop, this event occurs even when no
 	 * mouse buttons are pressed (pointer will be -1).
 	 * @param toActor May be null.
 	 * @see InputEvent */
-	public void exit (InputEvent event, float x, float y, int pointer, Actor toActor) {
+	public void exit (InputEvent event, float x, float y, int pointer, @Null Actor toActor) {
 	}
 
 	/** Called when the mouse wheel has been scrolled. When true is returned, the event is {@link Event#handle() handled}. */

@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011 See AUTHORS file.
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -33,6 +33,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.DelayedRemovalArray;
+import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.Pools;
 import com.badlogic.gdx.utils.reflect.ClassReflection;
 
@@ -41,7 +42,7 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
  * origin is relative to the position and is used for scale and rotation.
  * <p>
  * An actor has a list of in progress {@link Action actions} that are applied to the actor (often over time). These are generally
- * used to change the presentation of the actor (moving it, resizing it, etc). See {@link #act(float)}, {@link Action} and its
+ * used to change the presentation of the actor (moving it, resizing it, etc). See {@link #act(float)}, {@link Action}, and its
  * many subclasses.
  * <p>
  * An actor has two kinds of listeners associated with it: "capture" and regular. The listeners are notified of events the actor
@@ -56,12 +57,12 @@ import com.badlogic.gdx.utils.reflect.ClassReflection;
  * @author Nathan Sweet */
 public class Actor {
 	private Stage stage;
-	Group parent;
+	@Null Group parent;
 	private final DelayedRemovalArray<EventListener> listeners = new DelayedRemovalArray(0);
 	private final DelayedRemovalArray<EventListener> captureListeners = new DelayedRemovalArray(0);
 	private final Array<Action> actions = new Array(0);
 
-	private String name;
+	@Null private String name;
 	private Touchable touchable = Touchable.enabled;
 	private boolean visible = true, debug;
 	float x, y;
@@ -70,7 +71,7 @@ public class Actor {
 	float scaleX = 1, scaleY = 1;
 	float rotation;
 	final Color color = new Color(1, 1, 1, 1);
-	private Object userObject;
+	@Null private Object userObject;
 
 	/** Draws the actor. The batch is configured to draw in the parent's coordinate system.
 	 * {@link Batch#draw(com.badlogic.gdx.graphics.g2d.TextureRegion, float, float, float, float, float, float, float, float, float)
@@ -79,8 +80,9 @@ public class Actor {
 	 * method returns.
 	 * <p>
 	 * The default implementation does nothing.
-	 * @param a The parent alpha, to be multiplied with this actor's alpha, allowing the parent's alpha to affect all children. */
-	public void draw (Batch batch, float a) {
+	 * @param parentAlpha The parent alpha, to be multiplied with this actor's alpha, allowing the parent's alpha to affect all
+	 *           children. */
+	public void draw (Batch batch, float parentAlpha) {
 	}
 
 	/** Updates the actor based on time. Typically this is called each frame by {@link Stage#act(float)}.
@@ -89,8 +91,9 @@ public class Actor {
 	 * @param delta Time in seconds since the last frame. */
 	public void act (float delta) {
 		Array<Action> actions = this.actions;
-		if (actions.size > 0) {
-			if (stage != null && stage.getActionsRequestRendering()) Gdx.graphics.requestRendering();
+		if (actions.size == 0) return;
+		if (stage != null && stage.getActionsRequestRendering()) Gdx.graphics.requestRendering();
+		try {
 			for (int i = 0; i < actions.size; i++) {
 				Action action = actions.get(i);
 				if (action.act(delta) && i < actions.size) {
@@ -103,6 +106,9 @@ public class Actor {
 					}
 				}
 			}
+		} catch (RuntimeException ex) {
+			String context = toString();
+			throw new RuntimeException("Actor: " + context.substring(0, Math.min(context.length(), 128)), ex);
 		}
 	}
 
@@ -176,37 +182,44 @@ public class Actor {
 		event.setCapture(capture);
 		if (event.getStage() == null) event.setStage(stage);
 
-		listeners.begin();
-		for (int i = 0, n = listeners.size; i < n; i++) {
-			EventListener listener = listeners.get(i);
-			if (listener.handle(event)) {
-				event.handle();
-				if (event instanceof InputEvent) {
-					InputEvent inputEvent = (InputEvent)event;
-					if (inputEvent.getType() == Type.touchDown) {
-						event.getStage().addTouchFocus(listener, this, inputEvent.getTarget(), inputEvent.getPointer(),
-							inputEvent.getButton());
+		try {
+			listeners.begin();
+			for (int i = 0, n = listeners.size; i < n; i++) {
+				EventListener listener = listeners.get(i);
+				if (listener.handle(event)) {
+					event.handle();
+					if (event instanceof InputEvent) {
+						InputEvent inputEvent = (InputEvent)event;
+						if (inputEvent.getType() == Type.touchDown) {
+							event.getStage().addTouchFocus(listener, this, inputEvent.getTarget(), inputEvent.getPointer(),
+								inputEvent.getButton());
+						}
 					}
 				}
 			}
+			listeners.end();
+		} catch (RuntimeException ex) {
+			String context = toString();
+			throw new RuntimeException("Actor: " + context.substring(0, Math.min(context.length(), 128)), ex);
 		}
-		listeners.end();
 
 		return event.isCancelled();
 	}
 
-	/** Returns the deepest actor that contains the specified point and is {@link #getTouchable() touchable} and
-	 * {@link #isVisible() visible}, or null if no actor was hit. The point is specified in the actor's local coordinate system
-	 * (0,0 is the bottom left of the actor and width,height is the upper right).
+	/** Returns the deepest {@link #isVisible() visible} (and optionally, {@link #getTouchable() touchable}) actor that contains
+	 * the specified point, or null if no actor was hit. The point is specified in the actor's local coordinate system (0,0 is the
+	 * bottom left of the actor and width,height is the upper right).
 	 * <p>
 	 * This method is used to delegate touchDown, mouse, and enter/exit events. If this method returns null, those events will not
 	 * occur on this Actor.
 	 * <p>
-	 * The default implementation returns this actor if the point is within this actor's bounds.
-	 * @param touchable If true, the hit detection will respect the {@link #setTouchable(Touchable) touchability}.
+	 * The default implementation returns this actor if the point is within this actor's bounds and this actor is visible.
+	 * @param touchable If true, hit detection will respect the {@link #setTouchable(Touchable) touchability}.
 	 * @see Touchable */
+	@Null
 	public Actor hit (float x, float y, boolean touchable) {
 		if (touchable && this.touchable != Touchable.enabled) return null;
+		if (!isVisible()) return null;
 		return x >= 0 && x < width && y >= 0 && y < height ? this : null;
 	}
 
@@ -234,7 +247,7 @@ public class Actor {
 		return listeners.removeValue(listener, true);
 	}
 
-	public Array<EventListener> getListeners () {
+	public DelayedRemovalArray<EventListener> getListeners () {
 		return listeners;
 	}
 
@@ -251,7 +264,7 @@ public class Actor {
 		return captureListeners.removeValue(listener, true);
 	}
 
-	public Array<EventListener> getCaptureListeners () {
+	public DelayedRemovalArray<EventListener> getCaptureListeners () {
 		return captureListeners;
 	}
 
@@ -262,8 +275,9 @@ public class Actor {
 		if (stage != null && stage.getActionsRequestRendering()) Gdx.graphics.requestRendering();
 	}
 
-	public void removeAction (Action action) {
-		if (actions.removeValue(action, true)) action.setActor(null);
+	/** @param action May be null, in which case nothing is done. */
+	public void removeAction (@Null Action action) {
+		if (action != null && actions.removeValue(action, true)) action.setActor(null);
 	}
 
 	public Array<Action> getActions () {
@@ -309,31 +323,32 @@ public class Actor {
 	public boolean isDescendantOf (Actor actor) {
 		if (actor == null) throw new IllegalArgumentException("actor cannot be null.");
 		Actor parent = this;
-		while (true) {
-			if (parent == null) return false;
+		do {
 			if (parent == actor) return true;
 			parent = parent.parent;
-		}
+		} while (parent != null);
+		return false;
 	}
 
 	/** Returns true if this actor is the same as or is the ascendant of the specified actor. */
 	public boolean isAscendantOf (Actor actor) {
 		if (actor == null) throw new IllegalArgumentException("actor cannot be null.");
-		while (true) {
-			if (actor == null) return false;
+		do {
 			if (actor == this) return true;
 			actor = actor.parent;
-		}
+		} while (actor != null);
+		return false;
 	}
 
 	/** Returns this actor or the first ascendant of this actor that is assignable with the specified type, or null if none were
 	 * found. */
+	@Null
 	public <T extends Actor> T firstAscendant (Class<T> type) {
 		if (type == null) throw new IllegalArgumentException("actor cannot be null.");
 		Actor actor = this;
 		do {
 			if (ClassReflection.isInstance(type, actor)) return (T)actor;
-			actor = actor.getParent();
+			actor = actor.parent;
 		} while (actor != null);
 		return null;
 	}
@@ -344,13 +359,14 @@ public class Actor {
 	}
 
 	/** Returns the parent actor, or null if not in a group. */
+	@Null
 	public Group getParent () {
 		return parent;
 	}
 
 	/** Called by the framework when an actor is added to or removed from a group.
 	 * @param parent May be null if the actor has been removed from the parent. */
-	protected void setParent (Group parent) {
+	protected void setParent (@Null Group parent) {
 		this.parent = parent;
 	}
 
@@ -377,13 +393,56 @@ public class Actor {
 		this.visible = visible;
 	}
 
+	/** Returns true if this actor and all ancestors are visible. */
+	public boolean ancestorsVisible () {
+		Actor actor = this;
+		do {
+			if (!actor.isVisible()) return false;
+			actor = actor.parent;
+		} while (actor != null);
+		return true;
+	}
+
+	/** Returns true if this actor is the {@link Stage#getKeyboardFocus() keyboard focus} actor. */
+	public boolean hasKeyboardFocus () {
+		Stage stage = getStage();
+		return stage != null && stage.getKeyboardFocus() == this;
+	}
+
+	/** Returns true if this actor is the {@link Stage#getScrollFocus() scroll focus} actor. */
+	public boolean hasScrollFocus () {
+		Stage stage = getStage();
+		return stage != null && stage.getScrollFocus() == this;
+	}
+
+	/** Returns true if this actor is a target actor for touch focus.
+	 * @see Stage#addTouchFocus(EventListener, Actor, Actor, int, int) */
+	public boolean isTouchFocusTarget () {
+		Stage stage = getStage();
+		if (stage == null) return false;
+		for (int i = 0, n = stage.touchFocuses.size; i < n; i++)
+			if (stage.touchFocuses.get(i).target == this) return true;
+		return false;
+	}
+
+	/** Returns true if this actor is a listener actor for touch focus.
+	 * @see Stage#addTouchFocus(EventListener, Actor, Actor, int, int) */
+	public boolean isTouchFocusListener () {
+		Stage stage = getStage();
+		if (stage == null) return false;
+		for (int i = 0, n = stage.touchFocuses.size; i < n; i++)
+			if (stage.touchFocuses.get(i).listenerActor == this) return true;
+		return false;
+	}
+
 	/** Returns an application specific object for convenience, or null. */
+	@Null
 	public Object getUserObject () {
 		return userObject;
 	}
 
 	/** Sets an application specific object for convenience. */
-	public void setUserObject (Object userObject) {
+	public void setUserObject (@Null Object userObject) {
 		this.userObject = userObject;
 	}
 
@@ -677,7 +736,7 @@ public class Actor {
 	/** Adds the specified rotation to the current rotation. */
 	public void rotateBy (float amountInDegrees) {
 		if (amountInDegrees != 0) {
-			rotation += amountInDegrees;
+			rotation = (rotation + amountInDegrees) % 360;
 			rotationChanged();
 		}
 	}
@@ -697,6 +756,7 @@ public class Actor {
 
 	/** @see #setName(String)
 	 * @return May be null. */
+	@Null
 	public String getName () {
 		return name;
 	}
@@ -704,7 +764,7 @@ public class Actor {
 	/** Set the actor's name, which is used for identification convenience and by {@link #toString()}.
 	 * @param name May be null.
 	 * @see Group#findActor(String) */
-	public void setName (String name) {
+	public void setName (@Null String name) {
 		this.name = name;
 	}
 
@@ -720,20 +780,22 @@ public class Actor {
 
 	/** Sets the z-index of this actor. The z-index is the index into the parent's {@link Group#getChildren() children}, where a
 	 * lower index is below a higher index. Setting a z-index higher than the number of children will move the child to the front.
-	 * Setting a z-index less than zero is invalid. */
-	public void setZIndex (int index) {
+	 * Setting a z-index less than zero is invalid.
+	 * @return true if the z-index changed. */
+	public boolean setZIndex (int index) {
 		if (index < 0) throw new IllegalArgumentException("ZIndex cannot be < 0.");
 		Group parent = this.parent;
-		if (parent == null) return;
+		if (parent == null) return false;
 		Array<Actor> children = parent.children;
-		if (children.size == 1) return;
+		if (children.size == 1) return false;
 		index = Math.min(index, children.size - 1);
-		if (children.get(index) == this) return;
-		if (!children.removeValue(this, true)) return;
+		if (children.get(index) == this) return false;
+		if (!children.removeValue(this, true)) return false;
 		children.insert(index, this);
+		return true;
 	}
 
-	/** Returns the z-index of this actor.
+	/** Returns the z-index of this actor, or -1 if the actor is not in a group.
 	 * @see #setZIndex(int) */
 	public int getZIndex () {
 		Group parent = this.parent;
@@ -753,12 +815,13 @@ public class Actor {
 	 * @see ScissorStack */
 	public boolean clipBegin (float x, float y, float width, float height) {
 		if (width <= 0 || height <= 0) return false;
+		Stage stage = this.stage;
+		if (stage == null) return false;
 		Rectangle tableBounds = Rectangle.tmp;
 		tableBounds.x = x;
 		tableBounds.y = y;
 		tableBounds.width = width;
 		tableBounds.height = height;
-		Stage stage = this.stage;
 		Rectangle scissorBounds = Pools.obtain(Rectangle.class);
 		stage.calculateScissors(tableBounds, scissorBounds);
 		if (ScissorStack.pushScissors(scissorBounds)) return true;
@@ -860,13 +923,13 @@ public class Actor {
 	}
 
 	/** Converts coordinates for this actor to those of a parent actor. The ascendant does not need to be a direct parent. */
-	public Vector2 localToAscendantCoordinates (Actor ascendant, Vector2 localCoords) {
+	public Vector2 localToAscendantCoordinates (@Null Actor ascendant, Vector2 localCoords) {
 		Actor actor = this;
-		while (actor != null) {
+		do {
 			actor.localToParentCoordinates(localCoords);
 			actor = actor.parent;
 			if (actor == ascendant) break;
-		}
+		} while (actor != null);
 		return localCoords;
 	}
 
@@ -885,7 +948,7 @@ public class Actor {
 	protected void drawDebugBounds (ShapeRenderer shapes) {
 		if (!debug) return;
 		shapes.set(ShapeType.Line);
-		shapes.setColor(stage.getDebugColor());
+		if (stage != null) shapes.setColor(stage.getDebugColor());
 		shapes.rect(x, y, originX, originY, width, height, scaleX, scaleY, rotation);
 	}
 
