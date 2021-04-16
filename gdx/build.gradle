@@ -21,10 +21,6 @@ targetCompatibility = 1.7
 
 sourceSets.main.java.srcDirs = ["src"]
 sourceSets.main.resources.srcDirs = ["res"]
-// Workaround the Idea limitation that only takes output folder for classpath resolution when running
-// from other modules (such as /tests)
-sourceSets.main.output.resourcesDir = file("$buildDir/classes/java/main")
-
 sourceSets.test.java.srcDirs = ["test"]
 
 compileJava {
@@ -33,12 +29,40 @@ compileJava {
 }
 
 dependencies {
-    compileOnly project(":extensions:gdx-jnigen")
     testCompile libraries.junit
 }
 
 test {
     testLogging {
         events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
+// Workaround needed for IDEA to have resources on classpath when running tests (like gdx-tests-lwjgl3)
+task copyIdeaResources(type: Copy) {
+    from "${projectDir}/res"
+    into "${buildDir}/classes/java/main/"
+}
+processResources.dependsOn copyIdeaResources
+
+apply plugin: "com.badlogicgames.gdx.gdx-jnigen"
+jnigen {
+    sharedLibName = "gdx"
+    temporaryDir = "../target/native"
+    all {
+        cppExcludes = ["iosgl/**"]
+    }
+    add(Windows, x32)
+    add(Windows, x64)
+    add(Linux, x64)
+    add(Linux, x32, ARM)
+    add(Linux, x64, ARM)
+    add(Android) {
+        linkerFlags += " -llog"
+    }
+    add(MacOsX, x64)
+    add(IOS) {
+        headerDirs = ["iosgl"]
+        cppExcludes = []
     }
 }

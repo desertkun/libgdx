@@ -42,6 +42,7 @@ import com.badlogic.gdx.utils.Null;
 import com.badlogic.gdx.utils.SharedLibraryLoader;
 
 import java.awt.Canvas;
+import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.EventQueue;
@@ -57,7 +58,7 @@ public class LwjglCanvas implements LwjglApplicationBase {
 
 	LwjglGraphics graphics;
 	LwjglAudio audio;
-	LwjglFiles files;
+	Files files;
 	LwjglInput input;
 	LwjglNet net;
 	ApplicationListener listener;
@@ -145,7 +146,7 @@ public class LwjglCanvas implements LwjglApplicationBase {
 		};
 		graphics.setVSync(config.vSyncEnabled);
 		if (!LwjglApplicationConfiguration.disableAudio) audio = createAudio(config);
-		files = new LwjglFiles();
+		files = createFiles();
 		input = createInput(config);
 		net = new LwjglNet(config);
 		this.listener = listener;
@@ -241,19 +242,7 @@ public class LwjglCanvas implements LwjglApplicationBase {
 					Display.processMessages();
 					if (cursor != null || !isWindows) canvas.setCursor(cursor);
 
-					boolean shouldRender = false;
-
-					int width = Math.max(1, graphics.getWidth());
-					int height = Math.max(1, graphics.getHeight());
-					if (lastWidth != width || lastHeight != height) {
-						lastWidth = width;
-						lastHeight = height;
-						Display.setLocation(0, 0);
-						Gdx.gl.glViewport(0, 0, width, height);
-						resize(width, height);
-						listener.resize(width, height);
-						shouldRender = true;
-					}
+					boolean shouldRender = checkResize();
 
 					if (executeRunnables()) shouldRender = true;
 
@@ -264,6 +253,8 @@ public class LwjglCanvas implements LwjglApplicationBase {
 					shouldRender |= graphics.shouldRender();
 					input.processEvents();
 					if (audio != null) audio.update();
+
+					if (checkResize()) shouldRender = true;
 
 					if (shouldRender) {
 						graphics.updateTime();
@@ -277,6 +268,24 @@ public class LwjglCanvas implements LwjglApplicationBase {
 					exception(ex);
 				}
 				EventQueue.invokeLater(this);
+			}
+
+			private boolean checkResize () {
+				Container parent = canvas.getParent();
+				if (parent != null && (canvas.getWidth() != parent.getWidth() || canvas.getHeight() != parent.getHeight()))
+					canvas.setSize(parent.getWidth(), parent.getHeight());
+
+				int width = Math.max(1, graphics.getWidth());
+				int height = Math.max(1, graphics.getHeight());
+				if (lastWidth == width && lastHeight == height) return false;
+				lastWidth = width;
+				lastHeight = height;
+
+				Display.setLocation(0, 0);
+				Gdx.gl.glViewport(0, 0, width, height);
+				resize(width, height);
+				listener.resize(width, height);
+				return true;
 			}
 		});
 	}
@@ -332,6 +341,10 @@ public class LwjglCanvas implements LwjglApplicationBase {
 	protected void stopped () {
 	}
 
+	/** Called after dispose is complete. */
+	protected void disposed () {
+	}
+
 	public void stop () {
 		EventQueue.invokeLater(new Runnable() {
 			public void run () {
@@ -351,6 +364,7 @@ public class LwjglCanvas implements LwjglApplicationBase {
 					if (audio != null) audio.dispose();
 				} catch (Throwable ignored) {
 				}
+				disposed();
 			}
 		});
 	}
@@ -476,6 +490,10 @@ public class LwjglCanvas implements LwjglApplicationBase {
 	 * runnable later throws an exception. Default is false. */
 	public void setPostedRunnableStacktraces (boolean postedRunnableStacktraces) {
 		this.postedRunnableStacktraces = postedRunnableStacktraces;
+	}
+
+	protected Files createFiles() {
+		return new LwjglFiles();
 	}
 
 	@Override

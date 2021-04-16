@@ -43,8 +43,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.FloatArray;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.badlogic.gdx.utils.IntIntMap;
-import com.badlogic.gdx.utils.NumberUtils;
-import com.badlogic.gdx.utils.Pool;
 import com.badlogic.gdx.utils.ShortArray;
 
 /** Class to construct a mesh, optionally splitting it into one or more mesh parts. Before you can call any other method you must
@@ -320,7 +318,7 @@ public class MeshBuilder implements MeshPartBuilder {
 	public void getIndices (short[] out, int destOffset) {
 		if (attributes == null) throw new GdxRuntimeException("Must be called in between #begin and #end");
 		if ((destOffset < 0) || (destOffset > out.length - indices.size))
-			throw new GdxRuntimeException("Array to small or offset out of range");
+			throw new GdxRuntimeException("Array too small or offset out of range");
 		System.arraycopy(indices.items, 0, out, destOffset, indices.size);
 	}
 

@@ -28,7 +28,6 @@ import com.badlogic.gdx.graphics.glutils.GLVersion;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.AMDDebugOutput;
 import org.lwjgl.opengl.ARBDebugOutput;
 import org.lwjgl.opengl.GL;
@@ -74,6 +73,7 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 	private static GLFWErrorCallback errorCallback;
 	private static GLVersion glVersion;
 	private static Callback glDebugCallback;
+	private final Sync sync;
 
 	static void initializeGlfw() {
 		if (errorCallback == null) {
@@ -104,9 +104,11 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 			this.audio = new MockAudio();
 		}
 		Gdx.audio = audio;
-		this.files = Gdx.files = new Lwjgl3Files();
+		this.files = Gdx.files = createFiles();
 		this.net = Gdx.net = new Lwjgl3Net(config);
 		this.clipboard = new Lwjgl3Clipboard();
+
+		this.sync = new Sync();
 
 		Lwjgl3Window window = createWindow(config, listener, 0);
 		windows.add(window);
@@ -131,9 +133,12 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 
 			boolean haveWindowsRendered = false;
 			closedWindows.clear();
+			int targetFramerate = -2;
 			for (Lwjgl3Window window : windows) {
 				window.makeCurrent();
 				currentWindow = window;
+				if (targetFramerate == -2)
+					targetFramerate = window.getConfig().foregroundFPS;
 				synchronized (lifecycleListeners) {
 					haveWindowsRendered |= window.update();
 				}
@@ -187,6 +192,8 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 				} catch (InterruptedException e) {
 					// ignore
 				}
+			} else if(targetFramerate  > 0) {
+				sync.sync(targetFramerate ); // sleep as needed to meet the target framerate
 			}
 		}
 	}
@@ -370,6 +377,10 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		return new DefaultLwjgl3Input(window);
 	}
 
+	protected Files createFiles() {
+		return new Lwjgl3Files();
+	}
+
 	/**
 	 * Creates a new {@link Lwjgl3Window} using the provided listener and {@link Lwjgl3WindowConfiguration}.
 	 *
@@ -420,15 +431,13 @@ public class Lwjgl3Application implements Lwjgl3ApplicationBase {
 		GLFW.glfwWindowHint(GLFW.GLFW_MAXIMIZED, config.windowMaximized ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
 		GLFW.glfwWindowHint(GLFW.GLFW_AUTO_ICONIFY, config.autoIconify ? GLFW.GLFW_TRUE : GLFW.GLFW_FALSE);
 
-		if(sharedContextWindow == 0) {
-			GLFW.glfwWindowHint(GLFW.GLFW_RED_BITS, config.r);
-			GLFW.glfwWindowHint(GLFW.GLFW_GREEN_BITS, config.g);
-			GLFW.glfwWindowHint(GLFW.GLFW_BLUE_BITS, config.b);
-			GLFW.glfwWindowHint(GLFW.GLFW_ALPHA_BITS, config.a);
-			GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, config.stencil);
-			GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, config.depth);
-			GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, config.samples);
-		}
+		GLFW.glfwWindowHint(GLFW.GLFW_RED_BITS, config.r);
+		GLFW.glfwWindowHint(GLFW.GLFW_GREEN_BITS, config.g);
+		GLFW.glfwWindowHint(GLFW.GLFW_BLUE_BITS, config.b);
+		GLFW.glfwWindowHint(GLFW.GLFW_ALPHA_BITS, config.a);
+		GLFW.glfwWindowHint(GLFW.GLFW_STENCIL_BITS, config.stencil);
+		GLFW.glfwWindowHint(GLFW.GLFW_DEPTH_BITS, config.depth);
+		GLFW.glfwWindowHint(GLFW.GLFW_SAMPLES, config.samples);
 
 		if (config.useGL30) {
 			GLFW.glfwWindowHint(GLFW.GLFW_CONTEXT_VERSION_MAJOR, config.gles30ContextMajorVersion);
